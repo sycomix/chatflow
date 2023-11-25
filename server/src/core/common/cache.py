@@ -11,10 +11,9 @@ class CacheMemory:
     def get(self, key):
         if key not in self.cache:
             return None
-        else:
-            # Move the recently read item to the end of the OrderedDict.
-            self.cache.move_to_end(key)
-            return self.cache[key]
+        # Move the recently read item to the end of the OrderedDict.
+        self.cache.move_to_end(key)
+        return self.cache[key]
 
     def put(self, key, value):
         if key in self.cache:

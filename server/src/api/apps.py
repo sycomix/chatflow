@@ -34,8 +34,7 @@ def list_apps(current_user: User = Depends(get_current_user)):
 
 @r.put("/admin/applications/{app_key}", deprecated=True)
 def update(app_key: str, app: App, current_user: User = Depends(get_current_user)):
-    app_updated = update_user_app(current_user.email, app_key, app)
-    if app_updated:
+    if app_updated := update_user_app(current_user.email, app_key, app):
         return JSONResponse(content=app_updated.dict())
 
     raise HTTPException(status_code=404, detail="App not found")
@@ -73,8 +72,7 @@ def list_apps(current_user: User = Depends(get_current_user)):
 
 @r.put("/applications/{app_key}")
 def update_app(app_key: str, app: App, current_user: User = Depends(get_current_user)):
-    app_updated = update_user_app(current_user.email, app_key, app)
-    if app_updated:
+    if app_updated := update_user_app(current_user.email, app_key, app):
         return JSONResponse(content=app_updated.dict())
 
     raise HTTPException(status_code=404, detail="App not found")

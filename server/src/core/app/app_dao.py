@@ -22,10 +22,7 @@ class AppDao:
 
     def get_by_user_email(self, user_email: str) -> List[App]:
         apps = self.db.get(user_email)
-        if apps is None:
-            return []
-
-        return [App(**app) for app in json.loads(apps)]
+        return [] if apps is None else [App(**app) for app in json.loads(apps)]
 
     def add(self, user, app: App):
         if self.get_by_user_email(user) is None:
@@ -51,10 +48,7 @@ class AppDao:
         if self.get_by_user_email(user) is None:
             return None
         apps = self.get_by_user_email(user)
-        for i in apps:
-            if app_key == i.app_key:
-                return i
-        return None
+        return next((i for i in apps if app_key == i.app_key), None)
 
     def put(self, apps, user):
         self.db.put(user, json.dumps([app.dict() for app in apps]))

@@ -54,18 +54,6 @@ class DocSearchService:
     async def _search_text(self, search_req, translated_text) -> list:
         return []
 
-        resp = self.llm_service.get_keywords(translated_text)
-        self._update_cost(resp.usage, search_req.user_email, search_req.app_key)
-        print("gpt keywords", resp.message)
-        keywords = resp.message.split(",")
-        return [item.strip() for item in keywords]
-        text = "|".join(keywords)
-        try:
-            results_text = await self.text_search.search_text(text, search_req.tags)
-        except:
-            results_text = None
-        return results_text
-
     async def get_metadata_by_app(self, app: str):
         return await self.text_search.get_by_tag(app)
 
@@ -115,7 +103,7 @@ def _normalize_score(number, max_number):
 
 def factory_doc_search_service(llm_service: LLMService, cost_service: CostService) -> DocSearchService:
     redis_client = conn.get_redis_instance()
-    metadata_index = config.INDEX_NAME + "_text"
+    metadata_index = f"{config.INDEX_NAME}_text"
     return DocSearchService(
         llm_service,
         cost_service,

@@ -31,9 +31,7 @@ class CostDao:
 
     def get(self, user: str) -> dict:
         cost = self.db.get(user)
-        if cost is None:
-            return {}
-        return json.loads(cost)
+        return {} if cost is None else json.loads(cost)
 
     def put(self, user_email: str, cost: dict):
         self.db.put(user_email, json.dumps(cost))

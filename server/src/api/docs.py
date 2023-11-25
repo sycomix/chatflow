@@ -21,9 +21,7 @@ async def find_docs(search_req: SearchRequest, request: Request, current_user: U
         raise HTTPException(status_code=402, detail="You have exceeded the free allowance for this app")
 
     is_plugin_mode = request.headers.get("pluginmode").lower() == "true"
-    tags = "demo|chat|"
-    if is_plugin_mode:
-        tags = ""
+    tags = "" if is_plugin_mode else "demo|chat|"
     tags += search_req.app_key if search_req.app_key != "" else "chat"
     search_req.tags = tags
     search_req.user_email = current_user.email
@@ -52,7 +50,7 @@ async def add_doc(request: AddDocRequest, current_user: User = Depends(get_curre
 
 @r.delete("/docs/{pk}", response_model=t.Dict)
 async def delete_doc(pk: str, current_user: User = Depends(get_current_user)) -> JSONResponse:
-    vector_key = "data_vector:" + pk
+    vector_key = f"data_vector:{pk}"
     item_vector = await redis_client.hgetall(vector_key)
     if item_vector is None:
         return JSONResponse(content={"message": "doc not found"}, status_code=404)
@@ -74,12 +72,12 @@ async def get_all_docs(app_key) -> t.Dict:
 
 async def add_app_doc(request) -> t.Dict:
     item_id = randint(0, 100000000)
-    key = "data_vector:" + str(item_id)
+    key = f"data_vector:{item_id}"
     # vector = TEXT_MODEL.encode(request.text).astype(np.float32).tolist()
     embedding = llm_service.embed_text(request.text)[0]
     openai_vector = np.array(embedding, dtype=np.float32).tobytes()
     mappings = {
-        "item_id": int(item_id),
+        "item_id": item_id,
         "application": request.app_key,
         "text_vector": np.array([], dtype=np.float32).tobytes(),
         "openai_text_vector": openai_vector,

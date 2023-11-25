@@ -76,8 +76,7 @@ def usage(user: User = Depends(get_current_user)):
 
 @r.get("/user/{user_email}/app/{app_key}/auth")
 def user_app_auth(user_email: str, app_key: str):
-    exists = user_service.exists_app(user_email, app_key)
-    if exists:
+    if exists := user_service.exists_app(user_email, app_key):
         access_token = create_access_token(data={"sub": user_email, "type": "app-auth"})
         return JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
 

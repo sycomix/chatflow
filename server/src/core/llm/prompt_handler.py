@@ -107,37 +107,36 @@ def get_msg_cycle(doc_context: str, sanitized_query: str) -> List[MessageDict]:
         MessageDict(
             role=MessageRole.SYSTEM,
             content=f"You are a bot helping the user to execute tasks. \n\n"
-                    f"If you are unsure and the answer is not explicitly written in the documentation, say "
-                    f"\"Sorry, I don't know how to help with that.\"\n\n"
-                    f"Given the following information from the documentation "
-                    f"provide for the user's task using only this information\n\n "
-                    f"DOCUMENTATION\n----------------------------\n\n"
-                    f"{doc_context}\n\n"
+            f"If you are unsure and the answer is not explicitly written in the documentation, say "
+            f"\"Sorry, I don't know how to help with that.\"\n\n"
+            f"Given the following information from the documentation "
+            f"provide for the user's task using only this information\n\n "
+            f"DOCUMENTATION\n----------------------------\n\n"
+            f"{doc_context}\n\n",
         ),
         MessageDict(
             role=MessageRole.SYSTEM,
-            content=f"The current time and date is {time.strftime('%c')}"
+            content=f"The current time and date is {time.strftime('%c')}",
         ),
         MessageDict(
             role=MessageRole.USER,
-            content=f"Execute the task using only the provided documentation above."
+            content="Execute the task using only the provided documentation above.",
+        ),
+        MessageDict(
+            role=MessageRole.USER, content=response_format_instructions
         ),
         MessageDict(
             role=MessageRole.USER,
-            content=response_format_instructions
+            content='Determine which command to use, and respond using the format specified above',
         ),
         MessageDict(
             role=MessageRole.USER,
-            content='Determine which command to use, and respond using the format specified above'
-        ),
-        MessageDict(
-            role=MessageRole.USER,
-            content=f"Under no circumstances should your response deviate from the following JSON FORMAT:  \n{formatted_response_format} \n"
+            content=f"Under no circumstances should your response deviate from the following JSON FORMAT:  \n{formatted_response_format} \n",
         ),
         MessageDict(
             role=MessageRole.USER,
             content=f'Here is the user\'s input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):\n\n'
-                    f'User input: {sanitized_query}'
+            f'User input: {sanitized_query}',
         ),
     ]
 
@@ -156,7 +155,7 @@ def build_prompt_command(history: List[MessageCompletion]) -> List[MessageDict]:
                         f'{message.query}'
             ))
             continue
-        if message.role == MessageRole.USER and message.context != "":
+        if message.role == MessageRole.USER:
             # reset prompts every time we get a new user command with context
             # this is to prevent reach the max tokens limit
             prompts.clear()
@@ -172,8 +171,7 @@ If the input requires an action, the response should be "form". Example: help me
 If you are unsure about the answer say "text" \n
 VERY IMPORTANT: Respond with either "text" or "form".
 """
-    prompts = []
-    prompts.append(MessageDict(role=MessageRole.SYSTEM, content=system_msg))
+    prompts = [MessageDict(role=MessageRole.SYSTEM, content=system_msg)]
     prompts.append(MessageDict(role=MessageRole.USER, content=f'User input: {input}'))
     return prompts
 
@@ -205,15 +203,17 @@ def prompt_pick_content(contexts: List[str], user_input) -> List[MessageDict]:
                 f"Your decision will be based on the user input. \n"
                 f"IMPORTANT: you should respond only with the option number (int type) and nothing else."
     )
-    contents = ""
-    for index, context in enumerate(contexts):
-        contents += f"**Option {index}**: \n {context} \n\n"
-
-    msg = """Given the contents below, please answer which content option it should be used to replay to the user input.
+    contents = "".join(
+        f"**Option {index}**: \n {context} \n\n"
+        for index, context in enumerate(contexts)
+    )
+    msg = (
+        """Given the contents below, please answer which content option it should be used to replay to the user input.
 CONTENTS
 ---
 """
-    msg += contents
+        + contents
+    )
     msg += f"USER INPUT \n---\n"
     msg += user_input
     msg += f"\n\nRESPONSE: "
@@ -254,8 +254,7 @@ def build_prompt_answer_questions(app: App, contexts, msgs) -> List[MessageDict]
                 f'\n\nHISTORY\n----------------------------\n {msg_history}' \
                 f'\nRESPONSE: '
     )
-    prompts = [system_msg, user_msg]
-    return prompts
+    return [system_msg, user_msg]
 
 
 def get_prompt_objs_from_history(history: List[MessageCompletion]) -> typing.Tuple[List[str], List[str]]:
@@ -264,13 +263,12 @@ def get_prompt_objs_from_history(history: List[MessageCompletion]) -> typing.Tup
     contexts = []
     for message in prepared_history:
         if message.role == MessageRole.ASSISTANT:
-            msgs.append("assistant: " + message.response)
-            continue
-        # empty context means that the user is refining the command based on the assistant's response
-        if message.role == MessageRole.USER and message.context == "":
-            msgs.append(f"user: {message.query}")
+            msgs.append(f"assistant: {message.response}")
             continue
         if message.role == MessageRole.USER:
+            if message.context == "":
+                msgs.append(f"user: {message.query}")
+                continue
             msgs.append(f"user: {message.query}")
             contexts.append(message.context)
     return contexts, msgs

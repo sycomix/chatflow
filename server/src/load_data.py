@@ -64,13 +64,13 @@ async def create_hnsw_index(
 
 
 def read_items_metadata_json() -> t.List:
-    with open(config.DATA_LOCATION + "/data_metadata.json") as f:
+    with open(f"{config.DATA_LOCATION}/data_metadata.json") as f:
         data = json.load(f)
     return data
 
 
 def read_data_vectors() -> t.List:
-    with open(config.DATA_LOCATION + "/data_vectors.json") as f:
+    with open(f"{config.DATA_LOCATION}/data_vectors.json") as f:
         data_vectors = json.load(f)
     return data_vectors
 
@@ -94,7 +94,7 @@ async def gather_with_concurrency(n, *data_items) -> t.Dict[str, t.Any]:
 async def save_data_vectors(data_vectors, redis_conn, data_with_pk):
     for data_vector in data_vectors:
         item_id = data_vector["item_id"]
-        key = "data_vector:" + str(item_id)
+        key = f"data_vector:{str(item_id)}"
         mappings = {
             "item_id": item_id,
             "application": data_with_pk[item_id]["item_metadata"]["application"],
@@ -112,9 +112,7 @@ async def load_all_data():
     else:
         print("Loading data into Chat commander App")
         items_metadata = read_items_metadata_json()
-        items_with_pk = {}
-        for item in items_metadata:
-            items_with_pk[item["item_id"]] = item
+        items_with_pk = {item["item_id"]: item for item in items_metadata}
         print("Data loaded!")
 
         print("Loading data vectors")
@@ -144,7 +142,7 @@ async def load_all_data():
 
 
 async def create_text_search_index():
-    index = INDEX_NAME + "_text"
+    index = f"{INDEX_NAME}_text"
     search_prefix = ":core.docs_search.entities.ItemEntity:"
     try:
         print("Dropping existing index")

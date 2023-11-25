@@ -100,18 +100,13 @@ class OpenAI:
 
         response_json = response.json()
 
-        results = []
-        for result in response_json['data']:
-            results.append(result['embedding'])
-
-        return results
+        return [result['embedding'] for result in response_json['data']]
 
     def transcriptions(self, file_path: str) -> str:
         audio_file = open(file_path, "rb")
-        transcript = openai.Audio.transcribe(
+        return openai.Audio.transcribe(
             model="whisper-1",
             file=audio_file,
             response_format="text",
-            api_key=self.api_key
+            api_key=self.api_key,
         )
-        return transcript

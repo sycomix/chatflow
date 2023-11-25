@@ -60,15 +60,16 @@ def get_request_dto(current_user, question_request, request):
     if app is None:
         app = App(app_name="chat", app_description="admin app", app_key="chat")
 
-    user_input_req = UserInputDto(**{
-        "question": question_request.question,
-        "context": question_request.context,
-        "user": current_user,
-        "app": app,
-        "is_plugin_mode": is_plugin_mode,
-        "session_id": session_id
-    })
-    return user_input_req
+    return UserInputDto(
+        **{
+            "question": question_request.question,
+            "context": question_request.context,
+            "user": current_user,
+            "app": app,
+            "is_plugin_mode": is_plugin_mode,
+            "session_id": session_id,
+        }
+    )
 
 
 def get_completion_stream(prompts, model, temperature):
@@ -77,17 +78,16 @@ def get_completion_stream(prompts, model, temperature):
     for event in client.events():
         if event.data != '[DONE]':
             yield 'event: message\n'
-            yield "data:" + event.data + '\n\n'
+            yield f"data:{event.data}" + '\n\n'
 
 
 def get_user_ip(request):
     """Get the user's IP address from the request"""
-    x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if x_forwarded_for:
-        client_host = x_forwarded_for.split(',')[0]  # Take the first IP if there's a list
-    else:
-        client_host = request.client.host
-    return client_host
+    return (
+        x_forwarded_for.split(',')[0]
+        if (x_forwarded_for := request.headers.get("X-Forwarded-For"))
+        else request.client.host
+    )
 
 
 def get_fake_command():

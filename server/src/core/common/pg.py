@@ -29,7 +29,4 @@ class DBConnection:
         rows = self.cursor.fetchall()
         # Convert rows to list of dictionaries so they're easier to work with
         cols = [desc[0] for desc in self.cursor.description]
-        result = []
-        for row in rows:
-            result.append(dict(zip(cols, row)))
-        return result
+        return [dict(zip(cols, row)) for row in rows]

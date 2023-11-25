@@ -44,7 +44,7 @@ class AgentService:
             return False
         if "#action" not in req.context:
             return False
-        if "#action" in req.context and "#text" not in req.context:
+        if "#text" not in req.context:
             return True
         text_form = self.llm.get_text_or_form(req.question)
         self.update_cost(text_form.usage, req.user.email, req.app.app_key)

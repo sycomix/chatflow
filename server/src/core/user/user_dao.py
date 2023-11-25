@@ -17,9 +17,7 @@ class UserDao:
 
     def get_all(self) -> Dict[str, User]:
         users = self.db.get("all")
-        if users is None:
-            return {}
-        return users
+        return {} if users is None else users
 
     def get(self, user) -> User:
         return self.get_all().get(user)

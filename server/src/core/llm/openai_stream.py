@@ -26,10 +26,7 @@ class OpenAIStream:
         errors=(OpenAIRateLimitError, OpenAIError),
     )
     def get_chat_completions(self, messages: List[dict], model: str, max_tokens=1000, temperature=0.1):
-        str_model = "gpt-3.5-turbo-0613"
-        if model == "gpt4":
-            str_model = "gpt-4"
-
+        str_model = "gpt-4" if model == "gpt4" else "gpt-3.5-turbo-0613"
         completion_options = {
             "model": str_model,
             "messages": messages,

@@ -37,20 +37,15 @@ def create_text_query(
         number_of_results: int = 20,
 ):
     tag_query = f"@application:{{{tag}}}"
-    text_query= ""
-    if text_search != "":
-        text_query = f"@text:{text_search}"
-
+    text_query = f"@text:{text_search}" if text_search != "" else ""
     base_query = f'{tag_query} {text_query}'
-    query = Query(base_query) \
-        .paging(0, number_of_results) \
-        .return_fields(*return_fields) \
-        .with_scores() \
+    return (
+        Query(base_query)
+        .paging(0, number_of_results)
+        .return_fields(*return_fields)
+        .with_scores()
         .dialect(2)
-
-    # print(query.get_args())
-    # print(query.query_string())
-    return query
+    )
 
 
 def count(tag: t.Optional[str] = None):
