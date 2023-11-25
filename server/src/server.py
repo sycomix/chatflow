@@ -76,8 +76,8 @@ app.mount("/uploads", StaticFiles(directory=generated_dir), name="generated file
 @app.get("/")
 async def read_index():
     print("index.html")
-    if os.path.exists(frontend_dir + "/index.html"):
-        return FileResponse(frontend_dir + "/index.html")
+    if os.path.exists(f"{frontend_dir}/index.html"):
+        return FileResponse(f"{frontend_dir}/index.html")
     else:
         raise HTTPException(status_code=404, detail="Index.html not found")
 

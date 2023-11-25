@@ -15,16 +15,11 @@ class UserService:
         user = self.dao.get(email)
         if user is None:
             return None
-        if user.password == password:
-            return user
-
-        return None
+        return user if user.password == password else None
 
     def exists_app(self, email: str, app_key: str) -> bool:
         app = self.app_dao.get_by_id(email, app_key)
-        if app is None:
-            return False
-        return True
+        return app is not None
 
     def get_user_by_email(self, email):
         return self.dao.get(email)

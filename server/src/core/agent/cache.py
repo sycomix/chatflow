@@ -8,12 +8,12 @@ class PredictCache:
 
     async def put(self, key, value: str):
         k = encode_to_base64(key)
-        await self.redis.hset("predict_cache:" + k, "value", value)
+        await self.redis.hset(f"predict_cache:{k}", "value", value)
 
     async def get(self, key):
         k = encode_to_base64(key)
-        return await self.redis.hget("predict_cache:" + k, "value")
+        return await self.redis.hget(f"predict_cache:{k}", "value")
 
     async def exists(self, key) -> bool:
         k = encode_to_base64(key)
-        return await self.redis.exists("predict_cache:" + k)
+        return await self.redis.exists(f"predict_cache:{k}")

@@ -142,11 +142,11 @@ def extract_longest_curly_braces_content(s):
         if s[i] == '{':
             stack.append(i)
         elif s[i] == '}':
-            if len(stack) == 0:
+            if not stack:
                 start = i
             else:
                 start = stack.pop()
-                if len(stack) == 0:
+                if not stack:
                     content = s[start + 1:i]
                     content_len = len(content)
                     if content_len > longest_len:

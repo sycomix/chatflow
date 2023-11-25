@@ -25,13 +25,12 @@ openai = OpenAI(OPENAI_API_KEY_GPT3)
 # model = SentenceTransformer('sentence-transformers/all-distilroberta-v1')
 
 def generate_text_vectors(data_df):
-    text_vectors = {}
     for index, row in data_df.iterrows():
         if index % 1000 == 0:
             print(f"Creating text vectors. Page: {str(index)}")
         # text_vectors[row["item_id"]] = model.encode(row["text"]).astype(np.float32)
 
-    return text_vectors
+    return {}
 
 
 def generate_openai_text_vectors(data_df):
@@ -48,7 +47,7 @@ def generate_openai_text_vectors(data_df):
             item_ids.clear()
 
     # Add any remaining rows to row_count
-    if len(inputs) > 0:
+    if inputs:
         row_count = _get_embeddings(inputs, item_ids, row_count, text_vectors)
 
     print(row_count, len(data_df), len(text_vectors))

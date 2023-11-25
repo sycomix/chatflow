@@ -12,7 +12,7 @@ class CostService:
 
     def put_cost(self, cost: Cost, user_email: str, app_key: str):
         existing_cost = self.get_user_costs(user_email)
-        app_model = app_key + "_" + cost.model
+        app_model = f"{app_key}_{cost.model}"
         today = f"today_{date.today()}"
         if not existing_cost:
             self.cost_dao.put(user_email, {

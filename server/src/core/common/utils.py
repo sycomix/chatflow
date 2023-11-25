@@ -13,6 +13,4 @@ def filter_content(contexts: list, option: str):
 
 class EnumEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Enum):
-            return obj.value
-        return super().default(obj)
+        return obj.value if isinstance(obj, Enum) else super().default(obj)
